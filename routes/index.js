@@ -41,6 +41,12 @@ module.exports = {
     }
   },
 
+  '/user/:userId/post/:postId': {
+    'GET': (client) => {
+      client.send(200, client.params)
+    }
+  },
+
   '*': {
     'GET': (client) => {
       client.sendFileSafely(client.pathname);

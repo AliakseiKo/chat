@@ -9,6 +9,8 @@ class Client {
   constructor(req, res) {
     this.req = req;
     this.res = res;
+
+    this.params = null;
   }
 
   send(code, message = http.STATUS_CODES[code]) {
