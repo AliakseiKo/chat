@@ -1,26 +1,33 @@
-const clients = new Map();
+class Chat {
+  constructor() {
+    this.clients = new Set();
 
-function subscribe(res, id) {
-  clients.set(res, id);
-  // console.log(id);
+    setInterval(() => {
+      console.log(this.clients.size,);
+      // for (const client of this.clients.values()) {
+      //   console.log(client.req.connection.remoteAddress);
+      // }
+    }, 2000);
+  }
 
-  res.on('close', () => {
-    clients.delete(res);
-  });
+  subscribe(client) {
+    this.clients.add(client);
+
+    client.res.on('close', () => {
+      this.clients.delete(client);
+    });
+  }
+
+  publish(message) {
+    const messageJSON = JSON.stringify({ message });
+
+    this.clients.forEach((client) => {
+      client.res.writeHead(200, { 'Content-type': 'application/json' });
+      client.res.end(messageJSON);
+    });
+
+    this.clients.clear();
+  }
 }
 
-function publish(message) {
-  clients.forEach((id, res) => {
-    res.setHeader('Content-type', 'application/json');
-    res.end(JSON.stringify({ message }));
-    // console.log(`message: ${message} has been sent to ${id}`);
-  });
-
-  clients.clear();
-}
-
-// setInterval(() => {
-//   console.log(clients.size, Array.from(clients.values()));
-// }, 2000);
-
-module.exports = { subscribe, publish };
+module.exports = { Chat };

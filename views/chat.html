@@ -5,20 +5,24 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Chat</title>
+  <link rel="stylesheet" href="./libs/ui-textarea-auto-height/textAreaAutoHeight.css">
   <link rel="stylesheet" href="./styles/style.css">
 </head>
 <body>
-  <h1 class="id">0</h1>
+
+  <div class="status-message"></div>
+
   <div class="chat">
     <ul class="chat_message-list">
     </ul>
     <form class="chat_message-form">
-      <textarea class="chat_message-input" name="message"></textarea>
+      <textarea class="chat_message-input" name="message" rows="1"></textarea>
       <div class="chat_message-control">
         <input type="submit" class="chat_message-submit" value="send">
       </div>
     </form>
   </div>
+  <script src="./libs/ui-textarea-auto-height/textAreaAutoHeight.js"></script>
   <script src="./scripts/script.js"></script>
 </body>
 </html>

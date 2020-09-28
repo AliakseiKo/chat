@@ -1,6 +1,6 @@
 {
   "name": "chat",
-  "version": "1.0.1",
+  "version": "1.0.0",
   "description": "",
   "main": "app.js",
   "private": true,
@@ -12,6 +12,7 @@
   "license": "ISC",
   "dependencies": {
     "mime": "^2.4.6",
-    "nodemon": "^2.0.4"
+    "nodemon": "^2.0.4",
+    "smargparser": "^1.0.1"
   }
 }
