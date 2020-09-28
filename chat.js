@@ -19,13 +19,9 @@ class Chat {
   }
 
   publish(message) {
-    const messageJSON = JSON.stringify({ message });
-
     this.clients.forEach((client) => {
-      client.res.writeHead(200, { 'Content-type': 'application/json' });
-      client.res.end(messageJSON);
+      client.send(200, message);
     });
-
     this.clients.clear();
   }
 }

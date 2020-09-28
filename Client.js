@@ -11,35 +11,37 @@ class Client {
     this.res = res;
   }
 
-  sendError(code, message = http.STATUS_CODES[code], sendPage = true) {
+  send(code, message = http.STATUS_CODES[code]) {
     this.res.statusCode = code;
 
     if (message === false) {
       this.res.end();
-      return;
-    }
-
-    if (!sendPage) {
+    } else if (typeof message === 'string') {
+      this.res.setHeader('Content-type', 'text/plain; charset=utf-8');
       this.res.end(message);
-      return;
+    } else {
+      this.res.setHeader('Content-type', 'application/json; charset=utf-8');
+      this.res.end(JSON.stringify(message));
     }
+  }
+
+  sendError(code, message = http.STATUS_CODES[code]) {
+    this.res.statusCode = code;
 
     this.sendFile('./views/error.html', () => {
-      this.res.setHeader('Content-type', `text/plain; charser=${config.server.charset}`);
+      this.res.setHeader('Content-type', 'text/plain; charser=utf-8');
       this.res.end(message);
     });
   }
 
   sendFile(filePath, errorHandler) {
     filePath = path.resolve(filePath);
-
     const file = fs.createReadStream(filePath);
-
     file.pipe(this.res);
 
     file.on('open', () => {
       const mimeType = mime.getType(file.path);
-      this.res.setHeader('Content-type', `${mimeType}; charser=${config.server.charset}`);
+      this.res.setHeader('Content-type', `${mimeType}; charser=utf-8`);
     }).on('error', (error) => {
       if (errorHandler) {
         errorHandler(error);
