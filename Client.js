@@ -5,6 +5,8 @@ const http = require('http');
 
 const config = require('./config');
 
+const Cookie = require('./Cookie');
+
 class Client {
   constructor(req, res) {
     this.req = req;
