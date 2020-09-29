@@ -5,7 +5,8 @@ const http = require('http');
 
 const config = require('./config');
 
-const Cookie = require('./Cookie');
+const { Cookie } = require('./Cookie');
+const { Session } = require('inspector');
 
 class Client {
   constructor(req, res) {
@@ -23,7 +24,7 @@ class Client {
     if (content === undefined) {
       this.res.end();
     } else if (typeof content === 'string') {
-      this.res.setHeader('Content-type', 'text/plain; charset=utf-8');
+      this.res.setHeader('Content-type', 'text/html; charset=utf-8');
       this.res.end(message);
     } else {
       this.res.setHeader('Content-type', 'application/json; charset=utf-8');

@@ -53,4 +53,4 @@ class Cookie extends Map {
   }
 }
 
-module.exports = Cookie;
+module.exports = { Cookie };
