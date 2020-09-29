@@ -23,8 +23,9 @@ module.exports = {
 
       try {
         for await (const chunk of client.req) {
-          if (bufferSize > 1e4) {
+          if (bufferSize > 1024) {
             client.send(413, 'Your message is too big for my little chat');
+            return;
           }
 
           bufferSize += chunk.length;
@@ -33,17 +34,12 @@ module.exports = {
 
         body = JSON.parse(Buffer.concat(buffers).toString());
       } catch (error) {
-        client.send(400, false);
+        client.send(400);
+        return;
       }
 
       chat.publish(body);
-      client.send(200, false);
-    }
-  },
-
-  '/user/:userId/post/:postId': {
-    'GET': (client) => {
-      client.send(200, client.params)
+      client.send(200);
     }
   },
 
@@ -52,7 +48,7 @@ module.exports = {
       client.sendFileSafely(client.pathname);
     },
     '*': (client) => {
-      client.send(404, false);
+      client.send(404);
     }
   },
 };

@@ -9,16 +9,18 @@ class Client {
   constructor(req, res) {
     this.req = req;
     this.res = res;
-
-    this.params = null;
+    this.params = null; // come from Router
+    this.cookie = new Cookie(req, res);
   }
 
-  send(code, message = http.STATUS_CODES[code]) {
+  send(code, message, content) {
     this.res.statusCode = code;
 
-    if (message === false) {
+    if (typeof message === 'string') this.res.statusMessage = message;
+
+    if (content === undefined) {
       this.res.end();
-    } else if (typeof message === 'string') {
+    } else if (typeof content === 'string') {
       this.res.setHeader('Content-type', 'text/plain; charset=utf-8');
       this.res.end(message);
     } else {
