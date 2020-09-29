@@ -39,36 +39,35 @@ class Client {
   sendFile(filePath, errorHandler) {
     filePath = path.resolve(filePath);
     const file = fs.createReadStream(filePath);
-    file.pipe(this.res);
 
-    file.on('open', () => {
-      const mimeType = mime.getType(file.path);
-      this.res.setHeader('Content-type', `${mimeType}; charser=utf-8`);
-    }).on('error', (error) => {
-      if (errorHandler) {
-        errorHandler(error);
-        return;
-      }
+    file
+      .on('open', () => {
+        const type = mime.getType(file.path);
+        this.res.setHeader('Content-type', `${type}; charser=utf-8`);
+      })
+      .on('error', (error) => {
+        if (errorHandler) {
+          errorHandler(error);
+          return;
+        }
 
-      switch (error.code) {
-        case 'ENOENT':
-        case 'EISDIR':
-          this.sendError(404);
-          break;
-        default:
-          console.error(error);
-          this.sendError(500);
-          break;
-      }
-    });
-
-    this.res.on('close', () => {
-      file.destroy();
-    });
+        switch (error.code) {
+          case 'ENOENT':
+          case 'EISDIR':
+            this.sendError(404);
+            break;
+          default:
+            console.error(error);
+            this.sendError(500);
+            break;
+        }
+      })
+      .pipe(this.res)
+      .on('close', () => file.destroy());
   }
 
   sendFileSafely(filePath) {
-    if (~filePath.indexOf('\0')) {
+    if (filePath.includes('\0')) {
       this.sendError(400);
       return;
     }
@@ -77,7 +76,7 @@ class Client {
 
     filePath = path.join(root, filePath);
 
-    if (filePath.indexOf(root) !== 0) {
+    if (!filePath.startsWith(root)) {
       this.sendError(404);
       return;
     }
