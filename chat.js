@@ -1,13 +1,6 @@
 class Chat {
   constructor() {
     this.clients = new Set();
-
-    setInterval(() => {
-      console.log(this.clients.size,);
-      // for (const client of this.clients.values()) {
-      //   console.log(client.req.connection.remoteAddress);
-      // }
-    }, 2000);
   }
 
   subscribe(client) {
