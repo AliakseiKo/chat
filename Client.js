@@ -17,6 +17,8 @@ class Client {
   }
 
   send(code, message, content) {
+    this.cookie.send();
+
     this.res.statusCode = code;
 
     if (typeof message === 'string') this.res.statusMessage = message;
@@ -33,6 +35,8 @@ class Client {
   }
 
   sendError(code, message = http.STATUS_CODES[code]) {
+    this.cookie.send();
+
     this.res.statusCode = code;
 
     this.sendFile('./views/error.html', () => {
@@ -42,6 +46,8 @@ class Client {
   }
 
   sendFile(filePath, errorHandler) {
+    this.cookie.send();
+
     filePath = path.resolve(filePath);
     const file = fs.createReadStream(filePath);
 
