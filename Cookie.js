@@ -39,6 +39,7 @@ class Cookie extends Map {
   send() {
     if (this._prepared.length) {
       this._res.setHeader('Set-Cookie', this._prepared);
+      this._prepared = [];
     }
   }
 

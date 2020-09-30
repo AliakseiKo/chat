@@ -25,10 +25,10 @@ class Client {
       this.res.end();
     } else if (typeof content === 'string') {
       this.res.setHeader('Content-type', 'text/html; charset=utf-8');
-      this.res.end(message);
+      this.res.end(content);
     } else {
       this.res.setHeader('Content-type', 'application/json; charset=utf-8');
-      this.res.end(JSON.stringify(message));
+      this.res.end(JSON.stringify(content));
     }
   }
 
