@@ -1,11 +1,7 @@
-const path = require('path');
 const {
   port = 1234
-} = require('smargparser')();
+} = require('smargparser')(); // My library. You can replace with minimist.
 
 module.exports = {
-  port,
-  public: path.resolve('./public'),
-  views: path.resolve('./views'),
-  routes: path.resolve('./routes')
+  port
 };

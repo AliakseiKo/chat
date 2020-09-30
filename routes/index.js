@@ -3,6 +3,26 @@ const { Chat } = require('../chat');
 const chat = new Chat();
 
 module.exports = {
+  '/test': {
+    'GET': async (client) => {
+      // client.cookie.set('name', 'Aliaksei');
+      // client.cookie.set('age', 22);
+      // client.cookie.clear();
+
+      // client.cookie.set('password', '12345');
+
+      // await client.session.start();
+      // client.session.set('name', 'asd');
+
+      const result = {
+        cookie: Object.fromEntries(client.cookie.entries()),
+        // session: Object.fromEntries(client.session.entries())
+      }
+
+      client.send(200, true, '<pre>' + JSON.stringify(result, null, 2) + '</pre>');
+    }
+  },
+
   '/chat': {
     'GET': (client) => {
       client.sendFile('./views/chat.html');

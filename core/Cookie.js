@@ -41,20 +41,20 @@ class Cookie extends Map {
   }
 
   send() {
-    if (this._prepared.length) {
-      this._res.setHeader('Set-Cookie', this._prepared);
-      this._prepared = [];
-    }
+    if (!this._prepared.length) return;
+
+    this._res.setHeader('Set-Cookie', this._prepared);
+    this._prepared = [];
   }
 
   _parse() {
     const cookie = this._req.headers.cookie;
-    if (cookie) {
-      cookie.split(';').forEach((cookie) => {
-        const [ key, value = '' ] = cookie.split('=');
-        super.set(key.trim(), value.trim());
-      });
-    }
+    if (!cookie) return;
+
+    cookie.split(';').forEach((cookie) => {
+      const [ key, value = '' ] = cookie.split('=');
+      super.set(key.trim(), value.trim());
+    });
   }
 }
 

@@ -2,22 +2,31 @@ const fs = require('fs');
 const path = require('path');
 const mime = require('mime');
 const http = require('http');
+const EventEmitter = require('events');
 
-const config = require('./config');
+const config = require('../config');
 
 const { Cookie } = require('./Cookie');
-const { Session } = require('inspector');
+const { Session } = require('./Session');
 
-class Client {
+class Client extends EventEmitter {
   constructor(req, res) {
+    super();
+
     this.req = req;
     this.res = res;
     this.params = null; // come from Router
     this.cookie = new Cookie(req, res);
+    this.session = new Session(this.cookie);
+
+    this.on('beforesend', () => {
+      this.cookie.send();
+      this.session.write();
+    });
   }
 
   send(code, message, content) {
-    this.cookie.send();
+    this.emit('beforesend');
 
     this.res.statusCode = code;
 
@@ -35,8 +44,6 @@ class Client {
   }
 
   sendError(code, message = http.STATUS_CODES[code]) {
-    this.cookie.send();
-
     this.res.statusCode = code;
 
     this.sendFile('./views/error.html', () => {
@@ -46,7 +53,7 @@ class Client {
   }
 
   sendFile(filePath, errorHandler) {
-    this.cookie.send();
+    this.emit('beforesend');
 
     filePath = path.resolve(filePath);
     const file = fs.createReadStream(filePath);
