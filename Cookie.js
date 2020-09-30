@@ -27,13 +27,17 @@ class Cookie extends Map {
     if (httponly) cookie += '; HttpOnly';
     if (samesite) cookie += '; SameSite=' + samesite;
 
-    super.set(key, value);
     this._prepared.push(cookie);
+    super.set(key, value);
   }
 
   delete(key) {
-    super.delete(key);
     this._prepared.push(key + COOKIE_DELETE);
+    super.delete(key);
+  }
+
+  clear() {
+    Array.from(super.keys()).forEach((key) => this.delete(key));
   }
 
   send() {
