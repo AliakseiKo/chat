@@ -37,7 +37,7 @@ class Cookie extends Map {
   }
 
   clear() {
-    Array.from(super.keys()).forEach((key) => this.delete(key));
+    super.forEach((value, key) => this.delete(key));
   }
 
   send() {
