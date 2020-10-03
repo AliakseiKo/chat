@@ -1,3 +1,6 @@
+const path = require('path');
+
+const config = require('../config');
 const { Chat } = require('../chat');
 
 const chat = new Chat();
@@ -19,13 +22,13 @@ module.exports = {
         // session: Object.fromEntries(client.session.entries())
       }
 
-      client.send(200, true, '<pre>' + JSON.stringify(result, null, 2) + '</pre>');
+      client.send.html('<pre>' + JSON.stringify(result, null, 2) + '</pre>');
     }
   },
 
   '/chat': {
     'GET': (client) => {
-      client.sendFile('./views/chat.html');
+      client.send.file(path.join(__dirname, '../views/chat.html'));
     }
   },
 
@@ -44,7 +47,7 @@ module.exports = {
       try {
         for await (const chunk of client.req) {
           if (bufferSize > 1024) {
-            client.send(413, 'Your message is too big for my little chat');
+            client.send.status(413).message('Your message is too big for my little chat');
             return;
           }
 
@@ -54,21 +57,21 @@ module.exports = {
 
         body = JSON.parse(Buffer.concat(buffers).toString());
       } catch (error) {
-        client.send(400);
+        client.send.status(400).end();
         return;
       }
 
       chat.publish(body);
-      client.send(200);
+      client.send.status(200).end();
     }
   },
 
   '*': {
     'GET': (client) => {
-      client.sendFileSafely(client.pathname);
+      client.send.file(path.join(config.public, client.pathname), { root: config.public });
     },
     '*': (client) => {
-      client.send(404);
+      client.send.status(404).end();
     }
   },
 };

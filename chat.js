@@ -13,7 +13,7 @@ class Chat {
 
   publish(message) {
     this.clients.forEach((client) => {
-      client.send(200, message);
+      client.send.json(message);
     });
     this.clients.clear();
   }
