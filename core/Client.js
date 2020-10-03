@@ -46,7 +46,7 @@ class Client extends EventEmitter {
   sendError(code, message = http.STATUS_CODES[code]) {
     this.res.statusCode = code;
 
-    this.sendFile('./views/error.html', () => {
+    this.sendFile(path.join(config.views, 'error.html'), () => {
       this.res.setHeader('Content-type', 'text/plain; charser=utf-8');
       this.res.end(message);
     });
@@ -90,11 +90,11 @@ class Client extends EventEmitter {
       return;
     }
 
-    const root = config.server.public;
+    const publicRoot = config.public;
 
-    filePath = path.join(root, filePath);
+    filePath = path.join(publicRoot, filePath);
 
-    if (!filePath.startsWith(root)) {
+    if (!filePath.startsWith(publicRoot)) {
       this.sendError(404);
       return;
     }

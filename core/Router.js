@@ -1,4 +1,6 @@
-const routes = require('../routes');
+const config = require('../config');
+
+const routes = require(config.routes);
 
 class Router {
   constructor() {
