@@ -12,7 +12,9 @@
   "license": "ISC",
   "dependencies": {
     "mime": "^2.4.6",
-    "nodemon": "^2.0.4",
     "smargparser": "^1.0.1"
+  },
+  "devDependencies": {
+    "nodemon": "^2.0.4"
   }
 }
