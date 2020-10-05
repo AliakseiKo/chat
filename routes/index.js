@@ -68,7 +68,24 @@ module.exports = {
 
   '*': {
     'GET': (client) => {
-      client.send.file(path.join(config.public, client.pathname), { root: config.public });
+      client.send.file(
+        path.join(config.public, client.pathname),
+        { root: config.public },
+        (error) => {
+          client.send.status(404);
+
+          const ext = path.extname(client.pathname);
+
+          switch (ext) {
+            case '':
+            case '.html':
+              client.send.file(path.join(config.views, 'error.html'));
+              break;
+            default:
+              client.send.end();
+          }
+        }
+      );
     },
     '*': (client) => {
       client.send.status(404).end();

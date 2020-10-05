@@ -41,7 +41,6 @@ class Sender extends EventEmitter {
   }
 
   file(filePath, { root } = {}, errorHandler = undefined) {
-    this.emit('beforesend');
 
     if (filePath.includes('\0')) {
       this.status(400);
@@ -59,25 +58,27 @@ class Sender extends EventEmitter {
 
     file
       .on('open', () => {
+        this.emit('beforesend');
+
         const type = mime.getType(file.path);
         this.res.setHeader('Content-type', `${type}; charser=utf-8`);
       })
       .on('error', (error) => {
-        if (errorHandler) {
-          errorHandler(error);
-          return;
-        }
+        let code = 404;
 
         switch (error.code) {
           case 'ENOENT':
           case 'EISDIR':
-            this.status(404);
+            code = 404;
             break;
           default:
-            console.error(error);
-            this.status(500);
+            console.error(error).end();
+
+            code = 500;
         }
-        this.res.end();
+
+        if (errorHandler) errorHandler(error);
+        else this.status(code).end();
       })
       .pipe(this.res)
       .on('close', () => file.destroy());
