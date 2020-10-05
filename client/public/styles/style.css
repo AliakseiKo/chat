@@ -70,6 +70,8 @@ body {
 
 
 .status-message {
+  display: none;
+
   position: fixed;
   top: 0;
   right: 0;

@@ -1,6 +1,6 @@
 const fs = require('fs');
-const mime = require('mime');
 const EventEmitter = require('events');
+const mime = require('mime');
 
 class Sender extends EventEmitter {
   constructor (req, res) {
