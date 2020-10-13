@@ -26,17 +26,17 @@ class Sender extends EventEmitter {
   }
 
   text(text) {
-    this.res.setHeader('Content-type', 'text/plain; charset=utf-8');
+    this.res.setHeader('Content-Type', 'text/plain;charset=utf-8');
     this.end(text);
   }
 
   html(html) {
-    this.res.setHeader('Content-type', 'text/html; charset=utf-8');
+    this.res.setHeader('Content-Type', 'text/html;charset=utf-8');
     this.end(html);
   }
 
   json(json) {
-    this.res.setHeader('Content-type', 'application/json; charset=utf-8');
+    this.res.setHeader('Content-Type', 'application/json;charset=utf-8');
     this.end(JSON.stringify(json));
   }
 
@@ -61,7 +61,7 @@ class Sender extends EventEmitter {
         this.emit('beforesend');
 
         const type = mime.getType(file.path);
-        this.res.setHeader('Content-type', `${type}; charser=utf-8`);
+        this.res.setHeader('Content-Type', `${type};charset=utf-8`);
       })
       .on('error', (error) => {
         let code = 404;
