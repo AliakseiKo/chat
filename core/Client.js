@@ -17,6 +17,18 @@ class Client {
       this.session.write();
     });
   }
+
+  async getBody() {
+    const buffer = [];
+    let bufferSize = 0;
+
+    for await (let chunk of this.req) {
+      bufferSize += chunk.length;
+      buffer.push(chunk);
+    }
+
+    return Buffer.concat(buffer);
+  }
 }
 
 module.exports = { Client };
