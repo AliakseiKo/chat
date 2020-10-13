@@ -21,7 +21,7 @@ class Sender extends EventEmitter {
   }
 
   message(statusMessage) {
-    this.res.statusCode = statusMessage;
+    this.res.statusMessage = statusMessage;
     return this;
   }
 
