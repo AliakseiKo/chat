@@ -4,6 +4,7 @@ const config = require('../config');
 
 const views = {
   '/': 'chat.html',
+  '/registration': 'registration.html',
 };
 
 const routes = {

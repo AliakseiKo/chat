@@ -1,4 +1,8 @@
 const api = {
+  '/user/exist': require('./user'),
+
+  '/registration': require('./registration'),
+
   '/subscribe': require('./subscribe'),
 
   '/publish': require('./publish'),

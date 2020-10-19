@@ -1,0 +1,185 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Registration</title>
+
+  <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@100;400;700&display=swap" rel="stylesheet">
+
+  <link href="https://fonts.googleapis.com/css2?family=Ubuntu:wght@300;400;700&display=swap" rel="stylesheet">
+
+  <link rel="stylesheet" href="/libs/notifier/notifier.css">
+  <link rel="stylesheet" href="/styles/style.css">
+</head>
+<body>
+  <div class="container">
+    <form class="form" name="registration">
+      <h2 class="form__header">Registration</h2>
+      <div class="form__fields">
+
+        <div class="form__group">
+          <label class="form__field">
+            <input class="form__input form__input_text" type="text" name="nickname">
+            <span class="form__label">Nickname</span>
+          </label>
+          <div class="form_field-message"></div>
+        </div>
+
+        <div class="form__group">
+          <label class="form__field">
+            <input class="form__input form__input_text" type="password" name="password">
+            <span class="form__label">Password</span>
+          </label>
+          <div class="form_field-message"></div>
+        </div>
+
+        <div class="form__group">
+          <label class="form__field">
+            <input class="form__input form__input_text" type="password" name="confirmPassword">
+            <span class="form__label">Confirm password</span>
+          </label>
+          <div class="form_field-message"></div>
+        </div>
+
+        <div class="form__group">
+          <div class="form__wrpapper">
+            <input class="form__input form__input_button" type="submit" value="Submit">
+            <div>
+              <a class="form__link" href="/login">Already registered?</a>
+            </div>
+          </div>
+        </div>
+
+      </div>
+    </form>
+  </div>
+
+  <ul class="notification"></ul>
+
+  <script src="/scripts/api.js"></script>
+  <script src="/libs/notifier/notifier.js"></script>
+  <script>
+    const notificationListEl = document.querySelector('.notification');
+
+    const notifier = new Notifier(notificationListEl);
+  </script>
+  <script>
+    const nicknameRule = 'Username must be at least 3 letters long, and starts with a letter. It can contain numbers and underscore character _';
+    function checkNickName(nickname) {
+      return /^[a-zA-Zа-яА-Я][a-zA-Zа-яА-Я0-9]{2,}/u.test(nickname);
+    }
+
+    const passwordRule = 'Password length must not be less than 5 characters and contains at least one special chatacter like _ - = @ !';
+    function checkPassword(password) {
+      return password.length > 4 && password.match(/[^a-zA-Z0-9]/g) !== null;
+    }
+  </script>
+  <script>
+    function getFormGroupAndMessageElements(input) {
+      const groupEl = input.parentElement.parentElement;
+      const messageEl = groupEl.lastElementChild;
+      return { groupEl, messageEl };
+    }
+
+    function resetFormMessage(groupEl) {
+      groupEl.classList.remove('form__group_success', 'form__group_error');
+    }
+
+    async function validate(input, validateFunction) {
+      const { groupEl, messageEl } = getFormGroupAndMessageElements(input);
+
+      const value = input.value;
+
+      const { isValid, message } = await validateFunction(value);
+
+      groupEl.classList.remove('form__group_success', 'form__group_error');
+
+      messageEl.textContent = message;
+
+      if (isValid) groupEl.classList.add('form__group_success');
+      else groupEl.classList.add('form__group_error');
+
+      return isValid;
+    }
+  </script>
+  <script>
+    async function validateNickname(value) {
+      if (!checkNickName(value)) return { isValid: false, message: nicknameRule };
+
+      const exist = await API.checkUserExistance(value);
+
+      if (exist) return { isValid: false, message: 'A user with the same name already exists'};
+
+      return { isValid: true, message: ''};
+    }
+
+    function validatePassword(value) {
+      if (!checkPassword(value)) return { isValid: false, message: passwordRule };
+
+      return { isValid: true, message: ''};
+    }
+
+    function validateConfirmPassword(value1, value2) {
+      if (value1 !== value2) return { isValid: false, message: 'Passwords don\'t match' };
+
+      return { isValid: true, message: ''};
+    }
+  </script>
+  <script>
+    const form = document.forms.registration;
+
+    const {
+      nickname: nicknameInput,
+      password: passwordInput,
+      confirmPassword: confirmPasswordInput
+    } = form.elements;
+
+    nicknameInput.addEventListener('blur', (event) => {
+      const input = event.target;
+      if (input.value === '') {
+        const { groupEl } = getFormGroupAndMessageElements(input);
+        resetFormMessage(groupEl);
+        return;
+      }
+      validate(input, validateNickname);
+    });
+
+    passwordInput.addEventListener('blur', (event) => {
+      const input = event.target;
+      if (input.value === '') {
+        const { groupEl } = getFormGroupAndMessageElements(input);
+        resetFormMessage(groupEl);
+        return;
+      }
+      validate(input, validatePassword);
+    });
+
+    confirmPasswordInput.addEventListener('blur', (event) => {
+      const input = event.target;
+      if (input.value === '') {
+        const { groupEl } = getFormGroupAndMessageElements(input);
+        resetFormMessage(groupEl);
+        return;
+      }
+      validate(input, validateConfirmPassword.bind(null, passwordInput.value));
+    });
+
+    form.addEventListener('submit', async (event) => {
+      event.preventDefault();
+
+      const nicknameValid = await validate(nicknameInput, validateNickname);
+      const passwordValid = await validate(passwordInput, validatePassword);
+      const confirmPasswordValid = await validate(confirmPasswordInput, validateConfirmPassword.bind(null, passwordInput.value));
+
+      if (!(nicknameValid && passwordValid && confirmPasswordValid)) return;
+
+      const { nickname, password, confirmPassword } = Object.fromEntries(new FormData(form));
+
+      const { ok, statusText } = await API.registration(nickname, password);
+
+      notifier.show(statusText, (ok) ? notifier.types.success : notifier.types.error);
+    });
+  </script>
+</body>
+</html>
