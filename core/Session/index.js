@@ -1,4 +1,4 @@
-const { FileSystemStorage: Storage } = require('./FileSystemStorage');
+const { FileStorage: Storage } = require('./FileStorage');
 
 const { tokenGenerator } = require('../utils');
 

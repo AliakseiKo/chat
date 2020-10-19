@@ -3,7 +3,7 @@ const path = require('path');
 
 const ROOT = path.join(__dirname, './storage');
 
-class FileSystemStorage {
+class FileStorage {
   static async set(key, value) {
     const filePath = path.join(ROOT, key);
     if (!filePath.startsWith(ROOT) || filePath.includes('\0')) return;
@@ -48,4 +48,4 @@ class FileSystemStorage {
   }
 }
 
-module.exports = { FileSystemStorage };
+module.exports = { FileStorage };
