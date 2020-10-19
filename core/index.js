@@ -5,7 +5,10 @@ const config = require('../config');
 const { Client } = require('./Client');
 const { Router } = require('./Router');
 
-const router = new Router();
+const router = new Router(
+  require(config.routes),
+  require(config.api)
+);
 
 function run() {
   http.createServer((req, res) => {

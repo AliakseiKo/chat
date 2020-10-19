@@ -10,6 +10,7 @@ module.exports = {
   },
   database: {},
 
+  api: path.join(__dirname, '../api'),
   routes: path.join(__dirname, '../routes'),
   views: path.join(__dirname, '../views'),
   public: path.join(__dirname, '../client/public')

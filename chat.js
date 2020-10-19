@@ -19,4 +19,4 @@ class Chat {
   }
 }
 
-module.exports = { Chat };
+module.exports = { chat: new Chat() };

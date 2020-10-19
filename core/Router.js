@@ -1,45 +1,57 @@
-const config = require('../config');
-
-const routes = require(config.routes);
-
 class Router {
-  constructor() {
-    this.simpleRoutes = {};
-    this.templateRoutes = [];
+  constructor(...routeArray) {
+    this.routes = new Map();
+    this.regexpRoutes = new Map();
 
-    for (const [ route, methods ] of Object.entries(routes)) {
-      if (~route.indexOf(':')) {
-        const template = '^' + route.replace(/:([^/]+)/g, '(?<$1>[^/?#]+)') + '$';
-        this.templateRoutes.push({ template, methods });
-      } else {
-        this.simpleRoutes[route] = methods;
+    routeArray.forEach((routes) => {
+      for (const [ route, methods ] of Object.entries(routes)) {
+        if (route.includes(':')) {
+          this.addTemplate(route, methods);
+        } else {
+          this.add(route, methods);
+        }
       }
-    }
+    });
   }
 
   route(client) {
     client.url = new URL(client.req.url, `http://${client.req.headers.host}`);
     client.pathname = decodeURI(client.url.pathname);
 
-    let methods = this.simpleRoutes[client.pathname];
+    let methods = this.routes.get(client.pathname);
 
     if (!methods) {
-      for (let i = 0; i < this.templateRoutes.length; ++i) {
-        const result = client.pathname.match(new RegExp(this.templateRoutes[i].template));
-        if (result) {
+      for (let [ regexp, _methods ] of this.regexpRoutes) {
+        const result = client.pathname.match(regexp);
+        if (result !== null) {
           client.params = new Map(Object.entries(result.groups));
-          methods = this.templateRoutes[i].methods;
+          methods = _methods;
           break;
         }
       }
     }
 
+    const defaultRoute = this.routes.get('*');
+
     const handler = methods?.[client.req.method]
       ?? methods?.['*']
-      ?? this.simpleRoutes?.['*']?.[client.req.method]
-      ?? this.simpleRoutes?.['*']?.['*'];
+      ?? defaultRoute?.[client.req.method]
+      ?? defaultRoute['*'];
 
     handler(client);
+  }
+
+  add(uri, methods) {
+    this.routes.set(uri, methods);
+  }
+
+  addTemplate(template, methods) {
+    const regexp = new RegExp(`^${template.replace(/:([^/]+)/g, '(?<$1>[^/]+)')}$`);
+    this.regexpRoutes.set(regexp, methods);
+  }
+
+  addRegexp(regexp, methods) {
+    this.regexpRoutes.set(regexp, methods);
   }
 }
 
