@@ -4,6 +4,7 @@ const config = require('../config');
 
 const { Client } = require('./Client');
 const { Router } = require('./Router');
+const { DataBase } = require('./DataBase');
 
 const router = new Router(
   require(config.routes),
@@ -11,6 +12,7 @@ const router = new Router(
 );
 
 function run() {
+  DataBase.open();
   http.createServer((req, res) => {
     const client = new Client(req, res);
     router.route(client);

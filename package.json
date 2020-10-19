@@ -13,6 +13,7 @@
   "license": "ISC",
   "dependencies": {
     "mime": "^2.4.6",
+    "pg": "^8.4.1",
     "smargparser": "^1.0.1"
   },
   "devDependencies": {
