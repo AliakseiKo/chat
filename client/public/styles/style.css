@@ -2,12 +2,28 @@
   box-sizing: border-box;
 }
 
-body {
-  min-height: 100vh;
-  height: 1px;
-  margin: 0;
-  background-color: #f1f1f1;
+:root {
+  --main-bg-color: #f1f1f1;
+  --second-bg-color: #fff;
+
+  --main-text-color: #555;
+  --second-text-color: #aaa;
+
+  --error-text-color: #bb0000;
+  --success-text-color: #006600;
+
+  font-family: 'Roboto', sans-serif;
+  color: var(--main-text-color);
 }
+
+body {
+  height: 100vh;
+  margin: 0;
+
+  background-color: var(--main-bg-color);
+}
+
+/* chat -> */
 
 .chat {
   margin: 0 auto;
@@ -21,7 +37,7 @@ body {
   font-size: 16px;
 }
 
-.chat_message-list {
+.chat__list {
   flex: 1 1 0;
 
   background-color: #fff;
@@ -36,26 +52,22 @@ body {
   list-style: none;
 }
 
-.chat_message-list li {
+.chat__item {
   white-space: pre-wrap;
   overflow-wrap: break-word;
 }
 
-
-.chat_message-control {
-  display: flex;
-  flex-direction: row-reverse;
+.chat__item_success {
+  background-color: green;
 }
 
-
-
-.chat_message-submit {
-
+.chat__item_error {
+  background-color: red;
 }
 
+.chat__form {}
 
-
-.chat_message-input {
+.chat__input {
   width: 100%;
   padding: 10px;
   padding-right: 15px;
@@ -68,19 +80,12 @@ body {
   outline: none;
 }
 
-
-.status-message {
-  display: none;
-
-  position: fixed;
-  top: 0;
-  right: 0;
-
-  width: 300px;
-  max-height: 50%;
-  overflow-y: auto;
-
-  white-space: pre-wrap;
-
-  background-color: #cacaca;
+.chat__controls {
+  display: flex;
+  flex-direction: row-reverse;
 }
+
+.chat__submit {}
+
+
+/* <- chat */
