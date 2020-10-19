@@ -18,6 +18,18 @@ const API = (() => {
       return response;
     }
 
+    static async login(nickname, password) {
+      const requestBody = JSON.stringify({ nickname, password });
+
+      const response = await fetch('/api/login', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json;charset=utf-8' },
+        body: requestBody
+      });
+
+      return response;
+    }
+
     static async publish(message) {
       const requestBody = JSON.stringify({ message });
 

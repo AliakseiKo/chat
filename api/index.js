@@ -3,6 +3,8 @@ const api = {
 
   '/registration': require('./registration'),
 
+  '/login': require('./login'),
+
   '/subscribe': require('./subscribe'),
 
   '/publish': require('./publish'),
