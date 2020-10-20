@@ -1,38 +1,95 @@
-function textAreaAutoHeight(textArea, minRows = 1, maxRows = 20, { hideScrollClass = 'taah-scroll_hidden' } = {}) {
-  textArea.classList.add(hideScrollClass);
+window.TextAreaAutoHeight = (() => {
 
-  const computedStyle = window.getComputedStyle(textArea);
-  const boxSizingBB = computedStyle.boxSizing === 'border-box';
-  const paddings = parseFloat(computedStyle.paddingTop) + parseFloat(computedStyle.paddingBottom);
-  const borders = textArea.offsetHeight - textArea.clientHeight;
-  const lineHeight = (textArea.clientHeight - paddings) / textArea.rows;
+  // init styles ->
+  const scroll_hidden_class = 'GVBuqHsTkUwQlzgG___scroll_hidden';
 
-  const calcRows = () => parseFloat(textArea.scrollHeight - paddings) / lineHeight;
+  const style = document.createElement('style');
 
-  const setClientHeight = (clientHeight) => {
-    textArea.style.height = (boxSizingBB)
-      ? clientHeight + borders + 'px'
-      : clientHeight - paddings + 'px';
-  };
+  style.textContent = `.${scroll_hidden_class}{scrollbar-width:none;-ms-overflow-style:none}.${scroll_hidden_class}::-webkit-scrollbar{width:0}`;
 
-  const updateTextArea = () => {
-    textArea.classList.add(hideScrollClass);
-    let rows = calcRows();
+  document.head.append(style);
+  // <- init styles
 
-    if (textArea.scrollHeight !== textArea.clientHeight) {
-      if (rows > maxRows) textArea.classList.remove(hideScrollClass);
-      else setClientHeight(textArea.scrollHeight);
-    } else {
-      while (textArea.scrollHeight === textArea.clientHeight && (rows = calcRows()) > minRows) {
-        setClientHeight(textArea.clientHeight - lineHeight);
-      }
-      setClientHeight(textArea.scrollHeight);
+  class EventEmitter {
+    constructor() {
+      this._handlers = Object.create(null);
+    }
+
+    on(type, handler) {
+      (this._handlers[type] = this._handlers[type] ?? new Set()).add(handler);
+      return this;
+    }
+
+    off(type, handler) {
+      this._handlers[type]?.delete(handler);
+      return this;
+    }
+
+    emit(type, ...data) {
+      this._handlers[type]?.forEach((handler) => handler.call(this, ...data));
+      return this;
     }
   }
 
-  updateTextArea();
+  class TextAreaAutoHeight extends EventEmitter {
+    constructor(element, minRows = 1, maxRows = 10) {
+      super();
 
-  textArea.addEventListener('input', updateTextArea);
+      this.element = element;
 
-  return () => textArea.removeEventListener('input', updateTextArea);
-}
+      this.minRows = minRows;
+      this.maxRows = maxRows;
+
+      const computedStyle = window.getComputedStyle(this.element);
+      this._boxSizingBB = (computedStyle.boxSizing === 'border-box');
+      this._paddings = parseFloat(computedStyle.paddingTop) + parseFloat(computedStyle.paddingBottom);
+      this._borders = this.element.offsetHeight - this.element.clientHeight;
+      this._lineHeight = (this.element.clientHeight - this._paddings) / this.element.rows;
+
+      this.update = this.update.bind(this);
+
+      this.update();
+      this.start();
+    }
+
+    start() {
+      this.element.addEventListener('input', this.update);
+    }
+
+    stop() {
+      this.element.removeEventListener('input', this.update);
+    }
+
+    update() {
+      this.element.classList.add(scroll_hidden_class);
+      let rows = this._calcRows();
+
+      if (this.element.scrollHeight !== this.element.clientHeight) {
+        if (rows > this.maxRows) this.element.classList.remove(scroll_hidden_class);
+        else this._setClientHeight(this.element.scrollHeight);
+      } else {
+        while (
+          this.element.scrollHeight === this.element.clientHeight
+          && (rows = this._calcRows()) > this.minRows
+        ) {
+          this._setClientHeight(this.element.clientHeight - this._lineHeight);
+        }
+        this._setClientHeight(this.element.scrollHeight);
+      }
+
+      this.emit('update');
+    }
+
+    _calcRows() {
+      return (this.element.scrollHeight - this._paddings) / this._lineHeight;
+    }
+
+    _setClientHeight(clientHeight) {
+      this.element.style.height = (this._boxSizingBB)
+        ? clientHeight + this._borders + 'px'
+        : clientHeight - this._paddings + 'px';
+    }
+  }
+
+  return TextAreaAutoHeight;
+})();
