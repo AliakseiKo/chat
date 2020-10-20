@@ -9,7 +9,7 @@ const API = (() => {
     static async registration(nickname, password) {
       const requestBody = JSON.stringify({ nickname, password });
 
-      const response = await fetch('/api/registration', {
+      const response = fetch('/api/registration', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json;charset=utf-8' },
         body: requestBody
@@ -21,7 +21,7 @@ const API = (() => {
     static async login(nickname, password) {
       const requestBody = JSON.stringify({ nickname, password });
 
-      const response = await fetch('/api/login', {
+      const response = fetch('/api/login', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json;charset=utf-8' },
         body: requestBody
@@ -30,8 +30,8 @@ const API = (() => {
       return response;
     }
 
-    static async publish(message) {
-      const requestBody = JSON.stringify({ message });
+    static async publish(text) {
+      const requestBody = JSON.stringify({ text });
 
       const response = fetch('/api/publish', {
         method: 'POST',
@@ -43,7 +43,7 @@ const API = (() => {
     }
 
     static async subscribe() {
-      const response = await fetch('/api/subscribe');
+      const response = fetch('/api/subscribe');
 
       return response;
     }
