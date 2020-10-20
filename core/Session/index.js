@@ -14,6 +14,53 @@ class Session extends Map {
     this.started = false;
   }
 
+  async start() {
+    if (this.started) return;
+
+    this.started = true;
+
+    if (this.id) {
+      await this._restore();
+    } else {
+      await this._create();
+    }
+  }
+
+  async destroy() {
+    if (!this.started) return;
+
+    await Storage.delete(this.id);
+    this._cookie.delete('ssid');
+  }
+
+  async _restore() {
+    const sessionData = await Storage.get(this.id);
+
+    if (typeof sessionData === 'undefined') {
+      await Storage.delete(this.id);
+      console.log(123123123123123);
+      await this._create();
+      return;
+    }
+
+    Object.entries(sessionData).forEach(([ key, value ]) => {
+      super.set(key, value);
+    });
+  }
+
+  async _create() {
+    while (await Storage.has(this.id = tokenGenerator(SESSION_ID_LENGTH)));
+    await Storage.set(this.id, {});
+    this._cookie.set('ssid', this.id, { httponly: true });
+  }
+
+  async write() {
+    if (!this.started) return;
+
+    const sessionData = Object.fromEntries(super.entries());
+    await Storage.set(this.id, sessionData);
+  }
+
   set(key, value) {
     if (!this.started) throw new Error('session is not started');
     return super.set(key, value);
@@ -62,49 +109,6 @@ class Session extends Map {
   set size(value) {
     if (!this.started) throw new Error('session is not started');
     super.size = value;
-  }
-
-  async write() {
-    if (!this.started) return;
-
-    const sessionData = Object.fromEntries(super.entries());
-    await Storage.set(this.id, sessionData);
-  }
-
-  async start() {
-    this.started = true;
-    if (this.id) {
-      await this._restore();
-    } else {
-      await this._create();
-    }
-  }
-
-  async destroy() {
-    if (!this.started) return;
-
-    await Storage.delete(this.id);
-    this._cookie.delete('ssid');
-  }
-
-  async _restore() {
-    const sessionData = await Storage.get(this.id);
-
-    if (sessionData === undefined) {
-      await Storage.delete(this.id);
-      await this._create();
-      return;
-    }
-
-    Object.entries(sessionData).forEach(([ key, value ]) => {
-      super.set(key, value);
-    });
-  }
-
-  async _create() {
-    while (await Storage.has(this.id = tokenGenerator(SESSION_ID_LENGTH)));
-    await Storage.set(this.id, {});
-    this._cookie.set('ssid', this.id, { httponly: true });
   }
 }
 

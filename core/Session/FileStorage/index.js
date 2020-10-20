@@ -16,7 +16,7 @@ class FileStorage {
     if (!filePath.startsWith(ROOT) || filePath.includes('\0')) return;
 
     try {
-      const file = await fs.readFile(filePath);
+      const file = await fs.readFile(filePath, { encoding: 'utf-8' });
       return JSON.parse(file);
     } catch (ex) {
       if (ex.code !== 'ENOENT') console.error(ex);
