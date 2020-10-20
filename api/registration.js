@@ -25,10 +25,19 @@ module.exports = {
         return;
       }
 
-      await DataBase.query(
-        'INSERT INTO users (nickname, password) VALUES ($1, $2)',
+      const result = await DataBase.query(
+        'INSERT INTO users (nickname, password) VALUES ($1, $2) RETURNING id',
         [ nickname, password ]
       );
+
+      const id = result.rows[0].id;
+
+      await client.session.start();
+
+      client.session.set('id', id);
+      client.session.set('nickname', nickname);
+
+      client.cookie.set('nickname', nickname);
 
       client.send.status(200).message('Account has been created').end();
     } catch (ex) {

@@ -22,17 +22,19 @@ module.exports = {
       }
 
       const result = await DataBase.query(
-        'SELECT id FROM users WHERE nickname = $1 AND password = $2',
+        'SELECT id, nickname FROM users WHERE nickname = $1 AND password = $2',
         [nickname, password]
       );
 
       if (result.rowCount === 1) {
-
         await client.session.start();
 
-        client.session.set('auth', true);
+        client.session.set('id', result.rows[0].id);
+        client.session.set('nickname', result.rows[0].nickname);
 
-        client.send.status(200).message('Access granted').end();
+        client.cookie.set('nickname', result.rows[0].nickname);
+
+        client.send.status(200).message('You have seccessfully logged in').end();
       } else {
         client.send.status(400).message('Invalid nickname or password').end();
       }
