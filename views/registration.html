@@ -178,7 +178,11 @@
 
       const { ok, statusText } = await API.registration(nickname, password);
 
-      notifier.show(statusText, (ok) ? notifier.types.success : notifier.types.error);
+      if (ok) {
+        window.location.href = '/';
+      } else {
+        notifier.show(statusText, notifier.types.error);
+      }
     });
   </script>
 </body>
