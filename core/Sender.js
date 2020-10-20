@@ -37,7 +37,14 @@ class Sender extends EventEmitter {
 
   json(json) {
     this.res.setHeader('Content-Type', 'application/json;charset=utf-8');
-    this.end(JSON.stringify(json));
+    if (typeof json !== 'string') json = JSON.stringify(json);
+    this.end(json);
+  }
+
+  redirect(status, location) {
+    this.res.setHeader('Location', location);
+    if (status > 399 || status < 300) throw new Error('status code must be in the range 300-399');
+    this.status(status).end();
   }
 
   file(filePath, { root } = {}, errorHandler = undefined) {
