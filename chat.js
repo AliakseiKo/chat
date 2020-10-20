@@ -11,11 +11,23 @@ class Chat {
     });
   }
 
-  publish(message) {
-    this.clients.forEach((client) => {
-      client.send.json(message);
-    });
+  async publish(text, date, nickname, id) {
+    let cache;
+    const data = JSON.stringify({ text, date, nickname });
+
+    for (const client of this.clients) {
+      await client.session.start();
+
+      if (client.session.get('id') === id) {
+        cache = client;
+      } else {
+        client.send.json(data);
+      }
+    }
+
     this.clients.clear();
+
+    this.clients.add(cache);
   }
 }
 
