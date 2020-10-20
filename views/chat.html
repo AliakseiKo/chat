@@ -5,9 +5,12 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Chat</title>
 
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Roboto:wght@100;400;700&display=swap">
+
   <link rel="stylesheet" href="/libs/notifier/notifier.css">
-  <link rel="stylesheet" href="./libs/ui-textarea-auto-height/textAreaAutoHeight.css">
-  <link rel="stylesheet" href="./styles/style.css">
+
+  <link rel="stylesheet" href="/styles/fonts.css">
+  <link rel="stylesheet" href="/styles/style.css">
 </head>
 <body>
 
@@ -15,9 +18,6 @@
     <ul class="chat__list"></ul>
     <form class="chat__form">
       <textarea class="chat__input" name="message" rows="1"></textarea>
-      <div class="chat__controls">
-        <input type="submit" class="chat__submit" value="send">
-      </div>
     </form>
   </div>
 
@@ -32,21 +32,53 @@
     const notifier = new Notifier(notificationListEl);
   </script>
   <script>
-    const chat_list = document.querySelector('.chat__list');
+    function getCookie(key) {
+      key = key.replace(/([\^\$\|\.\*\+\?\(\)\[\]\{\}\\\\\/\-])/g, '\\$1');
+      const match = document.cookie.match(new RegExp(`(?:^|; )${key}=([^;]*)`));
+      if (!match) return null;
+      return match[1];
+    }
+  </script>
+  <script>
+    const user = { nickname: getCookie('nickname') ?? 'unknown' };
 
+    const chat_list = document.querySelector('.chat__list');
     const chat_form = document.querySelector('.chat__form');
     const chat_input = document.querySelector('.chat__input');
-    // const chat_messageSubmit = document.querySelector('.chat__submit');
 
-    const textAria = textAreaAutoHeight(chat_input, 1, 10);
+    const textAria = new TextAreaAutoHeight(chat_input);
+    textAria.on('update', () => {
+      chat_list.scrollTop = chat_list.scrollHeight;
+    });
 
-    (async function  subscribe() {
-      const response = await API.subscribe();
-      const { message } = await response.json();
+    (async () => {
+      function delay(timeout) {
+        return new Promise((resolve) => setTimeout(resolve, timeout));
+      }
 
-      showMessage(message);
+      while (true) {
+        try {
+          const response = await API.subscribe();
 
-      subscribe();
+          if (!response.ok) {
+            if (response.status === 401) window.location.href = '/login';
+            await delay(1000);
+            continue;
+          }
+
+          const { nickname, text, date } = await response.json();
+
+          const messageEl = showMessage({
+            nickname,
+            text,
+            date: new Date(date).toLocaleString()
+          });
+
+          messageEl.classList.add('message_default');
+        } catch (ex) {
+          await delay(1000);
+        }
+      }
     })();
 
     chat_input.addEventListener('keydown', (event) => {
@@ -61,40 +93,68 @@
 
       const message = new FormData(chat_form).get('message');
 
-      if (message.length === 0) {
-        notifier.show('A message can\'t be empty', notifier.types.error);
-        return;
-      }
+      if (message.length === 0) return;
 
       chat_input.value = '';
       textAria.update();
 
-      // const messageEl = showMessage(message);
+      const messageEl = showMessage({
+        text: message,
+        nickname: user.nickname,
+        date: new Date().toLocaleString()
+      });
 
-      const { ok } = await API.publish(message);
+      messageEl.classList.add('message_uploading');
 
-      // if (ok) {
-      //   messageEl.classList.add('chat__item_success');
-      // } else {
-      //   messageEl.classList.add('chat__item_error');
-      // }
+      const response = await API.publish(message);
 
-      if (ok) {
-        notifier.show('A message has sent', notifier.types.success);
+      messageEl.classList.remove('message_uploading');
+
+      if (response.ok) {
+        const { date } = await response.json();
+
+        messageEl.querySelector('.message__date').textContent = new Date(date).toLocaleString();
+
+        messageEl.classList.add('message_success');
       } else {
-        notifier.show('An error has occurred', notifier.types.error);
+        messageEl.classList.add('message_error');
+
+        notifier.show(response.statusText, notifier.types.error);
       }
     });
 
-    function showMessage(message) {
-      const li = document.createElement('li');
-      li.classList.add('chat__item');
-      li.textContent = message;
+    const messageTemplate = `
+      <li class="chat__item message">
+        <div class="message__header">
+          <span class="message__user-name"></span><span class="message__date"></span>
+        </div>
+        <div class="message_text"></div>
+      </li>
+    `;
 
-      chat_list.append(li);
+    function showMessage({ text, date, nickname }) {
+      const prevMessageEl = chat_list.lastElementChild;
+
+      chat_list.insertAdjacentHTML('beforeend', messageTemplate);
+
+      const currMessageEl = chat_list.lastElementChild;
+
+      currMessageEl.querySelector('.message__user-name').textContent = nickname;
+      currMessageEl.querySelector('.message__date').textContent = date;
+      currMessageEl.querySelector('.message_text').textContent = text;
+
+      if (prevMessageEl !== null) {
+        const prevUserName = prevMessageEl.querySelector('.message__user-name').textContent;
+        const prevDate = new Date(prevMessageEl.querySelector('.message__date').textContent);
+
+        if (prevUserName === nickname && (new Date(date) - prevDate < 60000)) {
+          currMessageEl.classList.add('message_nearest');
+        }
+      }
+
       chat_list.scrollTop = chat_list.scrollHeight;
 
-      return li;
+      return currMessageEl;
     }
 
   </script>
