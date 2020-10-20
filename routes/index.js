@@ -2,13 +2,43 @@ const path = require('path');
 
 const config = require('../config');
 
-const views = {
-  '/': 'chat.html',
-  '/registration': 'registration.html',
-  '/login': 'login.html'
-};
-
 const routes = {
+  '/': {
+    'GET': async (client) => {
+      await client.session.start();
+
+      if (client.session.has('id')) {
+        client.send.file(path.join(config.views, 'chat.html'));
+      } else {
+        client.send.redirect(307, '/login');
+      }
+    }
+  },
+
+  '/registration': {
+    'GET': async (client) => {
+      await client.session.start();
+
+      if (client.session.has('id')) {
+        client.send.redirect(307, '/');
+      } else {
+        client.send.file(path.join(config.views, 'registration.html'));
+      }
+    }
+  },
+
+  '/login': {
+    'GET': async (client) => {
+      await client.session.start();
+
+      if (client.session.has('id')) {
+        client.send.redirect(307, '/');
+      } else {
+        client.send.file(path.join(config.views, 'login.html'));
+      }
+    }
+  },
+
   '*': {
     'GET': (client) => {
       client.send.file(
@@ -35,13 +65,5 @@ const routes = {
     }
   },
 };
-
-for (const [ key, value ] of Object.entries(views)) {
-  routes[key] = {
-    'GET': (client) => {
-      client.send.file(path.join(config.views, value));
-    }
-  };
-}
 
 module.exports = routes;
