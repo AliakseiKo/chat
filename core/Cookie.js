@@ -31,8 +31,11 @@ class Cookie extends Map {
     super.set(key, value);
   }
 
-  delete(key) {
-    this._prepared.push(key + COOKIE_DELETE);
+  delete(key, path = '/') {
+    let cookie = key + COOKIE_DELETE;
+    if (path) cookie += '; Path=' + path;
+
+    this._prepared.push(cookie);
     super.delete(key);
   }
 
