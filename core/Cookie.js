@@ -48,7 +48,7 @@ class Cookie extends Map {
     super.forEach((value, key) => this.delete(key));
   }
 
-  send() {
+  write() {
     if (this._prepared.length < 1) return;
 
     this._res.setHeader('Set-Cookie', [ ...this._prepared ]);
