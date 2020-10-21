@@ -61,8 +61,6 @@ class Session extends Map {
   }
 
   async write() {
-    await (() => new Promise((res) => setTimeout(res, 2000)))();
-
     if (!this.started) return;
 
     if (super.size < 1) {
