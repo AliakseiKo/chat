@@ -11,6 +11,9 @@ class Session extends Map {
     this._cookie = cookie;
 
     this.id = this._cookie.get('ssid');
+
+    this.virtual = true;
+
     this.started = false;
   }
 
@@ -22,43 +25,61 @@ class Session extends Map {
     if (this.id) {
       await this._restore();
     } else {
-      await this._create();
+      this._create();
     }
   }
 
   async destroy() {
     if (!this.started) return;
 
-    this._cookie.delete('ssid');
+    if (this.virtual) {
+      super.clear();
+    } else {
+      await Storage.delete(this.id);
+    }
 
-    await Storage.delete(this.id);
+    this._cookie.delete('ssid');
   }
 
   async _restore() {
     const sessionData = await Storage.get(this.id);
 
     if (typeof sessionData === 'undefined') {
-      await Storage.delete(this.id);
-      await this._create();
+      this._create();
       return;
     }
+
+    this.virtual = false;
 
     Object.entries(sessionData).forEach(([ key, value ]) => {
       super.set(key, value);
     });
   }
 
-  async _create() {
-    while (await Storage.has(this.id = tokenGenerator(SESSION_ID_LENGTH)));
-    await Storage.set(this.id, {});
-    this._cookie.set('ssid', this.id, { httponly: true });
+  _create() {
+    this.virtual = true;
   }
 
   async write() {
+    await (() => new Promise((res) => setTimeout(res, 2000)))();
+
     if (!this.started) return;
+
+    if (super.size < 1) {
+      if (!this.virtual) await Storage.delete(this.id);
+
+      return;
+    }
+
+    if (this.virtual) {
+      while (await Storage.has(this.id = tokenGenerator(SESSION_ID_LENGTH)));
+      this.virtual = false;
+    }
 
     const sessionData = Object.fromEntries(super.entries());
     await Storage.set(this.id, sessionData);
+
+    this._cookie.set('ssid', this.id, { httponly: true });
   }
 
   set(key, value) {

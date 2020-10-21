@@ -12,9 +12,9 @@ class Client {
     this.cookie = new Cookie(req, res);
     this.session = new Session(this.cookie);
 
-    this.send.on('beforesend', () => {
-      this.cookie.send();
-      this.session.write();
+    this.send.on('beforesend', async () => {
+      await this.session.write();
+      this.cookie.write();
     });
   }
 
