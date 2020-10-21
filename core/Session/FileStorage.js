@@ -13,6 +13,7 @@ class FileStorage {
     await fs.writeFile(filePath, JSON.stringify(value));
   }
 
+  // returns object or undefined
   static async get(key) {
     const filePath = path.join(ROOT, key);
     if (!filePath.startsWith(ROOT) || filePath.includes('\0')) return;
