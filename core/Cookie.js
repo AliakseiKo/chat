@@ -1,6 +1,3 @@
-const COOKIE_EXPIRES = "Mon, 01 Jan 2120 00:00:00 GMT";
-const COOKIE_DELETE = "=deleted; Expires=Thu, 01 Jan 1970 00:00:00 GMT; Max-Age=0";
-
 class Cookie extends Map {
   constructor(req, res) {
     super();
@@ -8,12 +5,20 @@ class Cookie extends Map {
     this._req = req;
     this._res = res;
 
-    this._prepared = [];
+    this._prepared = new Set();
 
     this._parse();
   }
 
-  set(key, value, { expires = COOKIE_EXPIRES, maxAge, domain, path = '/', secure, httponly, samesite } = {}) {
+  set(key, value, {
+    expires = 'Mon, 01 Jan 2120 00:00:00 GMT',
+    maxAge,
+    domain,
+    path = '/',
+    secure,
+    httponly,
+    samesite
+  } = {}) {
     let cookie = key + '=' + value;
 
     if (typeof expires === 'number') expires = new Date(expires);
@@ -27,15 +32,15 @@ class Cookie extends Map {
     if (httponly) cookie += '; HttpOnly';
     if (samesite) cookie += '; SameSite=' + samesite;
 
-    this._prepared.push(cookie);
+    this._prepared.add(cookie);
     super.set(key, value);
   }
 
   delete(key, path = '/') {
-    let cookie = key + COOKIE_DELETE;
+    let cookie = key + '=deleted; Expires=Thu, 01 Jan 1970 00:00:00 GMT; Max-Age=0';
     if (path) cookie += '; Path=' + path;
 
-    this._prepared.push(cookie);
+    this._prepared.add(cookie);
     super.delete(key);
   }
 
@@ -44,19 +49,20 @@ class Cookie extends Map {
   }
 
   send() {
-    if (!this._prepared.length) return;
+    if (this._prepared.length < 1) return;
 
-    this._res.setHeader('Set-Cookie', this._prepared);
-    this._prepared = [];
+    this._res.setHeader('Set-Cookie', [ ...this._prepared ]);
+    this._prepared.clear();
   }
 
   _parse() {
     const cookie = this._req.headers.cookie;
     if (!cookie) return;
 
-    cookie.split(';').forEach((cookie) => {
-      const [ key, value = '' ] = cookie.split('=');
-      super.set(key.trim(), value.trim());
+    cookie.split('; ').forEach((cookie) => {
+      let [ key, value ] = cookie.split('=');
+
+      super.set(key, value);
     });
   }
 }
