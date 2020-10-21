@@ -5,6 +5,8 @@ const api = {
 
   '/login': require('./login'),
 
+  '/logout': require('./logout'),
+
   '/subscribe': require('./subscribe'),
 
   '/publish': require('./publish'),
