@@ -20,10 +20,8 @@ class Client {
 
   async getBody() {
     const buffer = [];
-    let bufferSize = 0;
 
     for await (let chunk of this.req) {
-      bufferSize += chunk.length;
       buffer.push(chunk);
     }
 
