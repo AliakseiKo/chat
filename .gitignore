@@ -1,4 +1,4 @@
 node_modules/
 jsconfig.json
 
-core/Session/FileStorage/storage/
+session_storage/

@@ -29,8 +29,9 @@ class Session extends Map {
   async destroy() {
     if (!this.started) return;
 
-    await Storage.delete(this.id);
     this._cookie.delete('ssid');
+
+    await Storage.delete(this.id);
   }
 
   async _restore() {
@@ -38,7 +39,6 @@ class Session extends Map {
 
     if (typeof sessionData === 'undefined') {
       await Storage.delete(this.id);
-      console.log(123123123123123);
       await this._create();
       return;
     }

@@ -1,7 +1,9 @@
 const fs = require('fs/promises');
 const path = require('path');
 
-const ROOT = path.join(__dirname, './storage');
+const config = require('../../config');
+
+const ROOT = config.sessionStorage;
 
 class FileStorage {
   static async set(key, value) {
