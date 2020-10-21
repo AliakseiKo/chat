@@ -1,5 +1,5 @@
 const fs = require('fs');
-const EventEmitter = require('events');
+const { EventEmitter } = require('./EventEmitter');
 const mime = require('mime');
 
 class Sender extends EventEmitter {
@@ -10,8 +10,8 @@ class Sender extends EventEmitter {
     this.res = res;
   }
 
-  end(body) {
-    this.emit('beforesend');
+  async end(body) {
+    await this.emit('beforesend');
     this.res.end(body);
   }
 
