@@ -47,7 +47,7 @@ class Sender extends EventEmitter {
     this.status(status).end();
   }
 
-  file(filePath, { root } = {}, errorHandler = undefined) {
+  async file(filePath, { root } = {}, errorHandler = undefined) {
 
     if (filePath.includes('\0')) {
       this.status(400);
@@ -63,9 +63,10 @@ class Sender extends EventEmitter {
 
     const file = fs.createReadStream(filePath);
 
+    await this.emit('beforesend');
+
     file
       .on('open', () => {
-        this.emit('beforesend');
 
         const type = mime.getType(file.path);
         this.res.setHeader('Content-Type', `${type};charset=utf-8`);
