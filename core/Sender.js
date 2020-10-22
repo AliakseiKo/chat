@@ -1,5 +1,5 @@
 const fs = require('fs');
-const { EventEmitter } = require('./EventEmitter');
+const { EventEmitter } = require('./utils');
 const mime = require('mime');
 
 class Sender extends EventEmitter {

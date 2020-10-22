@@ -1,3 +1,4 @@
 const { tokenGenerator } = require('./tokenGenerator');
+const { EventEmitter } = require('./EventEmitter');
 
-module.exports = { tokenGenerator };
+module.exports = { tokenGenerator, EventEmitter };
