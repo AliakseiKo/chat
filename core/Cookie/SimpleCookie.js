@@ -1,4 +1,4 @@
-class Cookie extends Map {
+class SimpleCookie extends Map {
   constructor(req, res) {
     super();
 
@@ -14,7 +14,7 @@ class Cookie extends Map {
     expires = 'Mon, 01 Jan 2120 00:00:00 GMT',
     maxAge,
     domain,
-    path,
+    path = '/',
     secure,
     httpOnly,
     sameSite
@@ -69,4 +69,4 @@ class Cookie extends Map {
   }
 }
 
-module.exports = { Cookie };
+module.exports = { SimpleCookie };
