@@ -5,7 +5,7 @@ class Cookie extends Map {
     this._req = req;
     this._res = res;
 
-    this._prepared = new Set();
+    this.buffer = new Map();
 
     this._parse();
   }
@@ -14,33 +14,35 @@ class Cookie extends Map {
     expires = 'Mon, 01 Jan 2120 00:00:00 GMT',
     maxAge,
     domain,
-    path = '/',
+    path,
     secure,
-    httponly,
-    samesite
+    httpOnly,
+    sameSite
   } = {}) {
     let cookie = key + '=' + value;
 
     if (typeof expires === 'number') expires = new Date(expires);
     if (expires instanceof Date) expires = expires.toUTCString();
 
-    if (expires) cookie += '; Expires=' + expires;
-    if (typeof maxAge === 'number') cookie += '; Max-Age=' + maxAge;
-    if (domain) cookie += '; Domain=' + domain;
-    if (path) cookie += '; Path=' + path;
-    if (secure) cookie += '; Secure';
-    if (httponly) cookie += '; HttpOnly';
-    if (samesite) cookie += '; SameSite=' + samesite;
+    if (typeof expires !== 'undefined') cookie += '; Expires=' + expires;
+    if (typeof maxAge !== 'undefined') cookie += '; Max-Age=' + maxAge;
+    if (typeof domain !== 'undefined') cookie += '; Domain=' + domain;
+    if (typeof path !== 'undefined') cookie += '; Path=' + path;
+    if (secure === true) cookie += '; Secure';
+    if (httpOnly === true) cookie += '; HttpOnly';
+    if (typeof sameSite !== 'undefined') cookie += '; SameSite=' + sameSite;
 
-    this._prepared.add(cookie);
+    this.buffer.set(key, cookie);
     super.set(key, value);
   }
 
-  delete(key, path = '/') {
-    let cookie = key + '=deleted; Expires=Thu, 01 Jan 1970 00:00:00 GMT; Max-Age=0';
-    if (path) cookie += '; Path=' + path;
+  delete(key, { domain, path } = {}) {
+    let cookie = key + '=deleted; Max-Age=0';
 
-    this._prepared.add(cookie);
+    if (typeof domain !== 'undefined') cookie += '; Domain=' + domain;
+    if (typeof path !== 'undefined') cookie += '; Path=' + path;
+
+    this.buffer.set(key, cookie);
     super.delete(key);
   }
 
@@ -49,10 +51,10 @@ class Cookie extends Map {
   }
 
   write() {
-    if (this._prepared.length < 1) return;
+    if (this.buffer.size < 1) return;
 
-    this._res.setHeader('Set-Cookie', [ ...this._prepared ]);
-    this._prepared.clear();
+    this._res.setHeader('Set-Cookie', [ ...this.buffer.values() ]);
+    this.buffer.clear();
   }
 
   _parse() {
