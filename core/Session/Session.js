@@ -10,7 +10,7 @@ class Session extends Map {
 
     this._cookie = cookie;
 
-    this.id = this._cookie.get('ssid');
+    this.id = this._cookie.signed.get('ssid');
 
     this.virtual = true;
 

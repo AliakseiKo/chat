@@ -3,7 +3,7 @@ const path = require('path');
 
 const config = require('../../config');
 
-const ROOT = config.sessionStorage;
+const ROOT = config.sessionStoragePath;
 
 class FileStorage {
   static async set(key, value) {
