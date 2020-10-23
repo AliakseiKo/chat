@@ -8,7 +8,7 @@ class Client {
     this.res = res;
     this.params = null; // come from Router
 
-    this.send = new Sender(req, res);
+    this.send = new Sender(res);
     this.cookie = new AdvancedCookie(req, res);
     this.session = new Session(this.cookie);
 
