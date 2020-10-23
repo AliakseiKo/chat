@@ -7,7 +7,7 @@ class SimpleCookie extends Map {
 
     this.buffer = new Map();
 
-    this._parse();
+    this.#parse();
   }
 
   set(key, value, {
@@ -36,7 +36,7 @@ class SimpleCookie extends Map {
     super.set(key, value);
   }
 
-  delete(key, { domain, path } = {}) {
+  delete(key, { domain, path = '/' } = {}) {
     let cookie = key + '=deleted; Max-Age=0';
 
     if (typeof domain !== 'undefined') cookie += '; Domain=' + domain;
@@ -57,7 +57,7 @@ class SimpleCookie extends Map {
     this.buffer.clear();
   }
 
-  _parse() {
+  #parse() {
     const cookie = this._req.headers.cookie;
     if (!cookie) return;
 
