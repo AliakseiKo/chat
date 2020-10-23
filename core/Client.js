@@ -1,5 +1,5 @@
 const { Sender } = require('./Sender');
-const { Cookie } = require('./Cookie');
+const { AdvancedCookie, SimpleCookie } = require('./Cookie');
 const { Session } = require('./Session');
 
 class Client {
@@ -9,7 +9,7 @@ class Client {
     this.params = null; // come from Router
 
     this.send = new Sender(req, res);
-    this.cookie = new Cookie(req, res);
+    this.cookie = new AdvancedCookie(req, res);
     this.session = new Session(this.cookie);
 
     this.send.on('beforesend', async () => {
